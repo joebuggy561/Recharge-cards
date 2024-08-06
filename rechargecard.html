@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<style>
+
+    *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+
+ 
+
+
+    main{
+        margin: 40px auto;
+        text-align: center;
+        width: 50%;
+        padding: 10px;
+        background-color: lightblue;
+        display: flex;
+        justify-content: center;
+    }
+
+    .section1{
+        width: 50%;
+    }
+
+    .section2{
+        width: 50%;
+    }
+
+    .load-airtime{
+        margin-top: 50px;
+    }
+
+    h1{
+        margin: 40px;
+        padding: 20px;
+    }
+
+    .mainchoice{
+        display: flex;
+        justify-content: space-between;
+        gap: 40px;
+        padding: 20px;
+    }
+
+    h2{
+        display: flex;
+        justify-content: start;
+        padding: 20px;
+    }
+
+    table{
+        width: 100%;
+        border: 1px solid black;
+        border-collapse: collapse;
+        margin-top: 20px;
+        
+        
+        
+    }
+
+
+</style>
+
+<body>
+    <main>
+        <section class="section-1">
+            <h1>Recharge Card Generator</h1>
+            <div class="mainchoice">
+                <div class="typesofprovider">
+                    <select name="" id="provider">
+                        <option value="choose provider"> choose provider</option>
+                        <option value="mtn"> mtn</option>
+                        <option value="glo"> glo</option>
+                        <option value="9mobile"> 9mobile</option>
+                        <option value="airtel"> airtel </option>
+                    </select>
+                </div>
+
+                <div class="amountpreferred">
+                    <select name="" id="amount">
+                        <option value="choose amount"> choose amount</option>
+                        <option value="100">&#8358 100</option>
+                        <option value="200">&#8358 200 </option>
+                        <option value="500">&#8358 500</option>
+                        <option value="1000">&#8358 1000 </option>
+                    </select>
+                </div>       
+
+                <button onclick="generateCard()"> Generate Card</button>
+            </div>    
+
+            
+            <h2> pin: <span id="span"> </span></h2>
+
+
+            <section class="section-2">
+                <div class="load-airtime">
+                    <p>load airtime</p>
+                    <input type="text" id="loadCards"> <button id="clickload" onclick="loadedCard()"> load </button>
+                </div>
+            </section>
+
+          
+            <table>
+                <thead>
+                    <th id="provider">Provider</th>
+                    <th id="amount">Amount</th>
+                    <th id="pin">Pin</th>
+                    <th id="isUsed">IsUsed</th>                
+                    <th id="dateCreated">DateCreated</th>
+                    <th id="timeUsed">TimeUsed</th>
+                </thead>
+                <tbody id="tbody">
+
+                </tbody>
+            </table>
+              
+        </section>
+
+    </main>
+    
+  
+
+
+</body>
+
+</html>
+<script>
+
+let database = JSON.parse(localStorage.getItem('rechargeCard')) || []
+let generatenums = document.getElementById('generatenums')
+let provider = document.getElementById('provider')
+let amount = document.getElementById('amount')
+let inputTbody = document.getElementById('tbody')
+let clickLoads = document.getElementById('clickLoad')
+
+
+function generateCard(){
+    let providerName = provider.value
+    let amountNeed = amount.value
+    if(providerName === 'choose provider' || amountNeed === 'choose amount'){ //why or and not and
+        alert('You must pick and amount and provider')       
+    }else{
+        let pin = ''
+        for(let i = 0; i < 10; i++){       
+        pin += Math.floor(Math.random() * 10)
+        
+        }
+        document.getElementById('span').innerHTML = pin
+    
+
+    const myObj = {
+        provider : provider.value,
+        amount : amount.value,
+        pin : pin,
+        isUsed : 'false',
+        dateCreated : new Date().toLocaleTimeString(),
+        timeUsed : ''
+    }
+
+    database.push(myObj)
+
+    console.log(myObj)
+    localStorage.setItem('rechargeCard', JSON.stringify(database))
+    newDisplayTable()
+    loadedCard(myObj.pin, myObj.amount, myObj.provider, myObj.isUsed, myObj.dateCreated, myObj.timeUsed);
+   
+}
+
+}
+
+console.log(generateCard())
+
+
+function newDisplayTable(){
+    tbody.innerHTML = ''
+    database.forEach((newData) => {
+        tbody.innerHTML += `<tr>
+        <td>${newData.provider}</td>
+        <td>${newData.amount}</td>
+        <td id="newPin">${newData.pin}</td>
+        <td>${newData.isUsed}</td>
+        <td>${newData.dateCreated}</td>
+        <td>${newData.timeUsed}</td>
+        </tr>`
+        
+    });
+   
+}
+
+// cards cannot be recharged twice
+// cards will have to be the same as the random card generateCard
+// card will have to have the same lenght using RegExp
+// card time used will have to recorded into database 
+// cards if used will have to show used 
+// cards will balance will be deducted from the main balance 
+
+
+let inputCard = document.getElementById('loadCards');
+
+function loadedCard(pin, amount, provider, isUsed) {
+    let inputCards = pin
+    console.log(inputCards)
+    let newAmount = amount;
+    let cardRegex = /^[*]{1}[3]{1}[1]{2}[*]{1}[0-9]{10}[#]{1}$/;
+
+    if (inputCards === '') {
+        alert('You need to put in a value')
+    } else if (!cardRegex.test(inputCards)) {
+        alert('This is an invalid card')
+    } else if (provider === 'choose provider' || amount === 'choose amount') {
+        alert('You have to pick a Network and an Amount')
+    } else if (isUsed) {
+        alert('This card has already been used')
+    } else {
+        alert(`You have recharged ${newAmount} amount to your phone`)
+        isUsed = true; 
+    }
+}
+
+
+</script>
+
+<!-- crete 3 buttons all, used, notused,  let it display the table the same way and also blance for each provider  -->
